@@ -21,48 +21,32 @@ fn main() {
 
 
     #[derive(Debug)]
-    enum Node{
-        Leaf {
-            name: char,
-            terminus: bool,},
-
-        Branch {
+    struct Node{
             name: char,
             terminus: bool,
-            nodes: Option<Box<Node>>}
-    }
+            nodes: Option<Box<Node>>
+        }
+    
     #[derive(Debug)]
     struct Trie{
         // the trie will have node children but no value and no terminus
         nodes:Box<Node>,
     }
 
-    impl Node {
-        // Method to convert a Leaf node into a Branch node
-        // needs to be given a Node type object to attach to next element
-        fn convert_to_branch(self, node:Option<Box<Node>>) -> Node {
-            match self {
-                Node::Leaf { name, terminus } => Node::Branch {
-                    name,
-                    terminus,
-                    nodes: node,
-                },
-                _ => panic!("Cannot convert non-leaf node to branch"),
-            }
-        }
-    }
 
     let mut tree: Trie = Trie{
-        nodes: Box::new(Node::Leaf{ name: '.', terminus:true, })
+        nodes: Box::new(Node{ name: '.', terminus:true, nodes: None })
     };
 
 
-    *tree.nodes = Node::Branch { name: li1[0], terminus: false, Some(Box::new(Node::Null)) };
+    *tree.nodes = Node { name: li1[0], terminus: false, nodes: None };
 
     for i in 1..5{
         let current = li1[i];
         // if root
-        let newNode = Node::Leaf { name: li1[i], terminus: false};
+        let newNode: Node = Node { name: li1[i], terminus: false, nodes: None};
+        
+        tree.nodes.nodes = Some(Box::new(newNode));
 
     }
 

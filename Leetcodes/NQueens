@@ -1,0 +1,234 @@
+"""
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        
+        Fuck you
+        
+        - The queens CANNOT attack each other
+        - The queen can attack | -- and \ /
+        - There are n queens
+        - The board is n by n
+        - given n
+        - return 
+            [
+            [
+            "   .   Q   .   .   ",
+            "   .   .   .   Q   ",
+            "   Q   .   .   .   ",
+            "   .   .   Q   .   "
+            ],
+
+            ["..Q.","Q...","...Q",".Q.."]
+            ]
+        
+        Start with empty board
+
+        ....
+        ....
+        ....
+        ....
+
+        qxxx
+        xxxq
+        xqxx
+        xxxx
+
+        1234 vs 2413
+
+        .q..
+        ...q
+        q...
+        ..q.
+
+        reserve [1]
+        reserve [3]
+        reserve [0]
+        reserve [2]
+
+        options = [0,1,2,3] *
+        reserve 1
+        options = [3]
+        reserve 3
+        options = [0]
+        reserve 0
+        options = [2]
+
+        options = [0,1,2,3] 
+        reserve 0
+        options = [2,3] 
+        reserve 2
+        options = []
+        BACK
+        options = [3]
+        reserve 3
+        options = [1]
+        reserve 1
+        options = []
+        BACK
+
+
+
+        """
+
+n = 4
+queensPlaced = []
+
+class Tile:
+    def __init__(self):
+        self.queen = False
+        self.free = True
+
+class Board:
+    def __init__(self):
+        self.Board = [[Tile() for _ in range(n)] for _ in range(n)]
+
+def viewBoard(b1):
+    for x in range(n):
+        row = []
+        for y in range(n):
+            if(b1.Board[x][y].free):
+                row.append(".")
+            elif(b1.Board[x][y].queen):
+                row.append("q")
+            else:
+                row.append("x")
+        print(row)
+    print()
+
+def findOptions(b1,row):
+    result = []
+    for y in range(n):
+        if b1.Board[row][y].free == True:
+            result.append(y)
+    return result
+
+def placeQueen(qx,qy,b1):
+    for x in range(n):  
+        for y in range(n):
+            if (qx==x and qy==y) and b1.Board[y][x].free:
+                queensPlaced.append([qx,qy])
+                b1.Board[qy][qx].queen = True
+                b1.Board[y][x].free = False
+            
+            elif (qx==x and qy==y) and not b1.Board[y][x].free:
+                return None
+
+            elif qy+(qx-x)==y and qx+(qx-x)==x and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+
+            elif qy-(qx-x)==y and qx-(qx-x)==x and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+
+            elif qy+(qx-x)==y and qx-(qx-x)==x and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+
+            elif qy-(qx-x)==y and qx+(qx-x)==x and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+
+            elif qx==x and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+            
+            elif qy==y and b1.Board[y][x].free:
+                b1.Board[y][x].free = False
+    return b1
+
+
+def undoQueen(queensPlaced,placeQueen):
+    b1 = Board()
+    for q in range(len(queensPlaced)-1):
+        x = queensPlaced[q][0]
+        y = queensPlaced[q][1]
+        queensPlaced.pop(len(queensPlaced)-1)
+        b1 = placeQueen(x,y,b1)
+        #viewBoard(b1)
+    queensPlaced.pop()
+    return b1
+
+def checkBoard(queensPlaced,placeQueen):
+    b1 = Board()
+    for q in range(len(queensPlaced)-1):
+        x = queensPlaced[q][0]
+        y = queensPlaced[q][1]
+        b1 = placeQueen(x,y,b1)
+        return b1
+
+
+import copy
+
+
+"""     
+options = []
+b1 = Board()
+boards = [Board()]
+i = 0
+shift = 0
+skip = False
+while True:
+    
+    
+    if not skip:
+        options.append(findOptions(b1,i))
+ 
+    if options[i] == []:
+        boards.pop(len(boards)-1)
+        options.pop(len(options)-1)
+        i -= 1
+        shift += 1
+        skip = True
+
+    else:
+        skip = False
+        i += 1
+
+    b1 = boards[i]
+    boards.append(copy.deepcopy(placeQueen(options[i][shift],i,b1)))
+    viewBoard(b1)
+""" 
+b1 = Board()
+row = 0
+skip = 0
+hops = 0
+solutions = []
+for i in range(30):
+    viewBoard(b1)
+    if queensPlaced == []:
+        skip = hops
+        hops += 1
+    elif len(queensPlaced) == 4:
+        print()
+        print("Solution Found: ")
+        viewBoard(b1)
+        print(queensPlaced)
+
+        solutions.append(queensPlaced)
+        
+
+
+        break
+    
+    options = findOptions(b1,row)
+    if options == []:    
+            b1 = undoQueen(queensPlaced,placeQueen)
+            row -= 1
+            skip += 1
+            options = findOptions(b1,row)
+    try:
+        for s in range(skip):
+            options.pop(0)
+
+        if options == []:
+            b1 = undoQueen(queensPlaced,placeQueen)
+            row -= 1
+            skip += 1
+            continue
+
+        b1 = placeQueen(options[0],row,b1)
+        row += 1
+        skip = 0
+        
+    except AttributeError:
+        b1 = undoQueen(queensPlaced,placeQueen)
+        row -= 1
+        skip += 1
+        
+    

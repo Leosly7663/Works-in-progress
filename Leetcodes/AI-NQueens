@@ -1,0 +1,97 @@
+"""
+This file represents an optimized version of my first attempt at this problem returned by GPT4.0
+"""
+# same test case n =4
+n = 4
+
+# kept these arrays
+solutions = []
+queensPlaced = []
+
+# same object declarations
+class Tile:
+    def __init__(self):
+        self.queen = False
+        self.free = True
+
+class Board:
+    def __init__(self):
+        self.Board = [[Tile() for _ in range(n)] for _ in range(n)]
+
+
+# kept the viewBoard method
+def viewBoard(b1):
+    for x in range(n):
+        row = []
+        for y in range(n):
+            if b1.Board[x][y].queen:
+                row.append("Q")
+            elif b1.Board[x][y].free:
+                row.append(".")
+            else:
+                row.append("x")
+        print(row)
+    print()
+
+# same 
+def findOptions(b1, row):
+    result = []
+    for y in range(n):
+        if b1.Board[row][y].free:
+            result.append(y)
+    return result
+
+def placeQueen(qx, qy, b1):
+    for x in range(n):
+        for y in range(n):
+            # Place queen
+            if qx == x and qy == y and b1.Board[y][x].free:
+                b1.Board[qy][qx].queen = True
+                queensPlaced.append([qx, qy])
+                b1.Board[y][x].free = False
+            # Mark attacks
+            elif qx == x or qy == y or (qy + (qx - x)) == y or (qy - (qx - x)) == y:
+                b1.Board[y][x].free = False
+    return b1
+
+def undoQueen(queensPlaced):
+    b1 = Board()
+    # Rebuild board from remaining queens
+    for q in queensPlaced[:-1]:
+        x, y = q
+        b1 = placeQueen(x, y, b1)
+    queensPlaced.pop()
+    return b1
+
+# Recursive backtracking version
+def solve(row, b1):
+    if row == n:
+        # Found full solution — save it
+        print("Solution Found!")
+        viewBoard(b1)
+        solutions.append(queensPlaced.copy())
+        return
+    
+    options = findOptions(b1, row)
+    for col in options:
+        # Place queen
+        b1_copy = Board()
+        # Rebuild current board state
+        for qx, qy in queensPlaced:
+            b1_copy = placeQueen(qx, qy, b1_copy)
+        
+        b1_copy = placeQueen(col, row, b1_copy)
+        
+        # Recurse to next row
+        solve(row + 1, b1_copy)
+        
+        # Backtrack queen
+        undoQueen(queensPlaced)
+
+# Main driver
+b1 = Board()
+solve(0, b1)
+
+print("All solutions:")
+for sol in solutions:
+    print(sol)
